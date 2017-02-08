@@ -1284,7 +1284,11 @@ public class Gen extends JCTree.Visitor {
     }
 
     public void visitLabelled(JCLabeledStatement tree) {
+    	//if the label is used from gotos, have to emit stack map
+    	if(tree.handler.isUsed(tree))
+    		code.emitStackMap();
         Env<GenContext> localEnv = env.dup(tree, new GenContext());
+        tree.handler.process(tree, code);
         genStat(tree.body, localEnv, CRT_STATEMENT);
         code.resolve(localEnv.info.exit);
     }
@@ -1854,10 +1858,12 @@ public class Gen extends JCTree.Visitor {
         targetEnv.info.addCont(code.branch(goto_));
         endFinalizerGaps(env, targetEnv);
     }
-    
-    @Override
-    public void visitGoto(JCGoto that) {
-    	// TODO Add implementation
+
+    public void visitGoto(JCGoto tree) {
+        tree.handler.addBranch(new Chain(code.emitJump(goto_), null, code.state.dup()), tree.target);
+        //normally goto marks code as not alive
+        code.entryPoint();
+
     }
 
     public void visitReturn(JCReturn tree) {

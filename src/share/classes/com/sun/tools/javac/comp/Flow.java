@@ -986,9 +986,8 @@ public class Flow {
         
         @Override
 		public void visitGoto(JCGoto tree) {
-			int gotoPos = tree.handler.detectCircularGotoPosition(tree);
-			if (gotoPos > -1)
-				log.warning(gotoPos, "circular.goto");
+			if (tree.handler.detectCircularGotoPosition(tree))
+				log.warning(tree.pos, "circular.goto");
 		}
 
         public void visitDoLoop(JCDoWhileLoop tree) {

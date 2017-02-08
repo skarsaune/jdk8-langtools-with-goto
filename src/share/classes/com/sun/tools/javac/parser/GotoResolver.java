@@ -13,8 +13,6 @@ import com.sun.source.tree.LabeledStatementTree;
 import com.sun.source.tree.StatementTree;
 import com.sun.tools.javac.jvm.Code;
 import com.sun.tools.javac.jvm.Code.Chain;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 
 /**
  * I am a convenience analyzer doing most of the heavy lifting when it comes to
@@ -146,15 +144,18 @@ public class GotoResolver {
 	 * @param start
 	 * @return
 	 */
-	public int detectCircularGotoPosition(final GotoTree start) {
+	public boolean detectCircularGotoPosition(final GotoTree start) {
 		final Collection<StatementTree> recursionSet = new LinkedList<StatementTree>();
 		
 
-		StatementTree currentNode = statementsInSequence.get(0);
+		StatementTree currentNode = start;
 		while (currentNode != null) {
 			// if the set contains node we have been here before
 			if (recursionSet.contains(currentNode)) {
-				return startPosition(currentNode);
+				if(currentNode == start)//if detected from our position report error
+					return true;
+				else
+					return false;//if detected from earlier goto, leave for later
 			}
 
 			if (currentNode instanceof GotoTree) // follow gotos, record source
@@ -171,16 +172,7 @@ public class GotoResolver {
 				currentNode = null;
 
 		}
-		return -1;
-	}
-
-	/**
-	 * 
-	 * @param tree
-	 * @return offset position of beginning of tree
-	 */
-	private static int startPosition(StatementTree tree) {
-		return TreeInfo.getStartPos((JCTree) tree);
+		return false;
 	}
 
 }
