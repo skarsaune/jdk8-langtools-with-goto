@@ -181,6 +181,9 @@ public class TreeScanner extends Visitor {
     public void visitContinue(JCContinue tree) {
     }
 
+    public void visitGoto(JCGoto tree) {
+    }
+
     public void visitReturn(JCReturn tree) {
         scan(tree.expr);
     }

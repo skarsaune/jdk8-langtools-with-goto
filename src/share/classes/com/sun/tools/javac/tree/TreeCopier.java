@@ -169,6 +169,11 @@ public class TreeCopier<P> implements TreeVisitor<JCTree,P> {
         return M.at(t.pos).Continue(t.label);
     }
 
+    public JCTree visitGoto(GotoTree node, P p) {
+        JCGoto t = (JCGoto) node;
+        return M.at(t.pos).Goto(t.label);
+    }
+
     public JCTree visitDoWhileLoop(DoWhileLoopTree node, P p) {
         JCDoWhileLoop t = (JCDoWhileLoop) node;
         JCStatement body = copy(t.body, p);

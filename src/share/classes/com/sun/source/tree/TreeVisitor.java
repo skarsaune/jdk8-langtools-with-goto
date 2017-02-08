@@ -72,6 +72,7 @@ public interface TreeVisitor<R,P> {
     R visitClass(ClassTree node, P p);
     R visitConditionalExpression(ConditionalExpressionTree node, P p);
     R visitContinue(ContinueTree node, P p);
+    R visitGoto(GotoTree node, P p);
     R visitDoWhileLoop(DoWhileLoopTree node, P p);
     R visitErroneous(ErroneousTree node, P p);
     R visitExpressionStatement(ExpressionStatementTree node, P p);

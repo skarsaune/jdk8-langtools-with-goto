@@ -123,6 +123,11 @@ public interface Tree {
         CONTINUE(ContinueTree.class),
 
         /**
+         * Used for instances of {@link GotoTree}.
+         */
+
+        GOTO(GotoTree.class),
+        /**
          * Used for instances of {@link DoWhileLoopTree}.
          */
         DO_WHILE_LOOP(DoWhileLoopTree.class),

@@ -980,4 +980,10 @@ public class TreeMaker implements JCTree.Factory {
     /** The name of synthetic type parameter number `i'.
      */
     public Name typaramName(int i) { return names.fromString("A" + i); }
+
+	public JCGoto Goto(Name label) {
+        JCGoto tree = new JCGoto(label);
+        tree.pos = pos;
+        return tree;
+    }
 }

@@ -272,4 +272,8 @@ public class SimpleTreeVisitor <R,P> implements TreeVisitor<R,P> {
     public R visitOther(Tree node, P p) {
         return defaultAction(node, p);
     }
+
+	public R visitGoto(GotoTree node, P p) {
+		return defaultAction(node, p);
+	}
 }

@@ -173,6 +173,10 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
          */
         CONTINUE,
 
+        /** goto statement, of type GOTO.
+         */
+        GOTO,
+
         /** Return statements, of type Return.
          */
         RETURN,
@@ -1365,6 +1369,30 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
             return CONTINUE;
         }
     }
+    /**
+     * A goto statement
+     *      */
+    public static class JCGoto extends JCStatement implements GotoTree {
+        public Name label;
+        public JCLabeledStatement target;
+        protected JCGoto(Name label) {
+            this.label = label;
+        }
+        @Override
+        public void accept(Visitor v) { v.visitGoto(this); }
+
+        public Kind getKind() { return Kind.GOTO; }
+        public Name getLabel() { return label; }
+        @Override
+        public <R,D> R accept(TreeVisitor<R,D> v, D d) {
+            return v.visitGoto(this, d);
+        }
+        @Override
+        public Tag getTag() {
+            return GOTO;
+        }
+        
+    }
 
     /**
      * A return statement.
@@ -2546,6 +2574,7 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
         public void visitExec(JCExpressionStatement that)    { visitTree(that); }
         public void visitBreak(JCBreak that)                 { visitTree(that); }
         public void visitContinue(JCContinue that)           { visitTree(that); }
+        public void visitGoto(JCGoto that)		             { visitTree(that); }
         public void visitReturn(JCReturn that)               { visitTree(that); }
         public void visitThrow(JCThrow that)                 { visitTree(that); }
         public void visitAssert(JCAssert that)               { visitTree(that); }

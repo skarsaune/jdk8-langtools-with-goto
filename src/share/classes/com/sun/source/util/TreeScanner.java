@@ -415,4 +415,9 @@ public class TreeScanner<R,P> implements TreeVisitor<R,P> {
     public R visitErroneous(ErroneousTree node, P p) {
         return null;
     }
+
+	@Override
+	public R visitGoto(GotoTree node, P p) {
+		return null;
+	}
 }

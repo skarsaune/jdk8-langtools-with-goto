@@ -842,6 +842,14 @@ public class Pretty extends JCTree.Visitor {
             throw new UncheckedIOException(e);
         }
     }
+    
+    public void visitGoto(JCGoto tree) {
+        try {
+            print("goto " + tree.label + ";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public void visitReturn(JCReturn tree) {
         try {

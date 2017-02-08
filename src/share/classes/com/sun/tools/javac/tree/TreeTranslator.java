@@ -253,6 +253,10 @@ public class TreeTranslator extends JCTree.Visitor {
     public void visitContinue(JCContinue tree) {
         result = tree;
     }
+    
+    public void visitGoto(JCGoto tree) {
+        result = tree;
+    }
 
     public void visitReturn(JCReturn tree) {
         tree.expr = translate(tree.expr);
