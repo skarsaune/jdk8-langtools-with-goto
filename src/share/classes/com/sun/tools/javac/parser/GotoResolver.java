@@ -1,9 +1,6 @@
 package com.sun.tools.javac.parser;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +28,7 @@ public class GotoResolver {
 	private Map<GotoTree, Name> gotos = new HashMap<GotoTree, Name>();
 	private Map<Name, LabeledStatementTree> targets = new HashMap<Name, LabeledStatementTree>();
 	private Map<LabeledStatementTree, PendingGotos> gotoInstructions = new HashMap<>();
+	private List<StatementTree> statementsInSequence = new LinkedList<>();
 
 	/**
 	 * Keep track of a goto statement
@@ -38,6 +36,7 @@ public class GotoResolver {
 	 */
 	public void recordGoto(final GotoTree stat) {
 		gotos.put(stat, stat.getLabel());
+		statementsInSequence.add(stat);
 	}
 
 	/**
@@ -46,6 +45,7 @@ public class GotoResolver {
 	 */
 	public void recordTarget(final LabeledStatementTree stat) {
 		targets.put(stat.getLabel(), stat);
+		statementsInSequence.add(stat);
 	}
 
 	/**
@@ -148,18 +148,7 @@ public class GotoResolver {
 	 */
 	public int detectCircularGotoPosition(final GotoTree start) {
 		final Collection<StatementTree> recursionSet = new LinkedList<StatementTree>();
-		final List<StatementTree> statementsInSequence = new ArrayList<StatementTree>(
-				gotos.size() + targets.size());
-		statementsInSequence.addAll(gotos.keySet());
-		statementsInSequence.addAll(targets.values());
-		Collections.sort(statementsInSequence, new Comparator<StatementTree>() {
-
-			@Override
-			public int compare(StatementTree stat1, StatementTree stat2) {
-
-				return startPosition(stat1) - startPosition(stat2);
-			}
-		});
+		
 
 		StatementTree currentNode = statementsInSequence.get(0);
 		while (currentNode != null) {

@@ -983,6 +983,13 @@ public class Flow {
         public void visitBlock(JCBlock tree) {
             scan(tree.stats);
         }
+        
+        @Override
+		public void visitGoto(JCGoto tree) {
+			int gotoPos = tree.handler.detectCircularGotoPosition(tree);
+			if (gotoPos > -1)
+				log.warning(gotoPos, "circular.goto");
+		}
 
         public void visitDoLoop(JCDoWhileLoop tree) {
             ListBuffer<FlowPendingExit> prevPendingExits = pendingExits;
