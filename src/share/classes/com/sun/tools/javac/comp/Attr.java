@@ -1607,6 +1607,7 @@ public class Attr extends JCTree.Visitor {
         tree.target = findJumpTarget(tree.pos(), tree.getTag(), tree.label, env);
         result = null;
     }
+    
     //where
         /** Return the target of a break or continue statement, if it exists,
          *  report an error if not.
@@ -4117,7 +4118,10 @@ public class Attr extends JCTree.Visitor {
     
     @Override
     public void visitGoto(JCGoto that) {
-    	// TODO Implement
+		that.findTarget();
+		if(that.target==null)
+			log.error(that.pos(), "undef.label", that.label);
+		result = null;
     }
 
     /**
