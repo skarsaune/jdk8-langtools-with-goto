@@ -50,6 +50,7 @@ import com.sun.tools.javac.tree.JCTree.JCPolyExpression.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
+
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Flags.ANNOTATION;
 import static com.sun.tools.javac.code.Flags.BLOCK;
@@ -4112,6 +4113,11 @@ public class Attr extends JCTree.Visitor {
      */
     public void visitTree(JCTree tree) {
         throw new AssertionError();
+    }
+    
+    @Override
+    public void visitGoto(JCGoto that) {
+    	// TODO Implement
     }
 
     /**

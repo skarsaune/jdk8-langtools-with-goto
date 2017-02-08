@@ -61,6 +61,17 @@ import static com.sun.tools.javac.tree.JCTree.Tag.*;
  *  deletion without notice.</b>
  */
 public class JavacParser implements Parser {
+	
+    private Stack<GotoResolver> gotoResolverStack=new Stack<>();
+    private void pushGotoResolver(){
+    	gotoResolverStack.push(new GotoResolver());
+    }
+    private GotoResolver getGotoResolver(){
+    	return gotoResolverStack.peek();
+    }
+    private void popGotoResolver() {
+    	gotoResolverStack.pop();
+    }
 
     /** The number of precedence levels of infix operators.
      */
@@ -404,6 +415,7 @@ public class JavacParser implements Parser {
                 case THROW:
                 case BREAK:
                 case CONTINUE:
+                case GOTO:
                 case ELSE:
                 case FINALLY:
                 case CATCH:
@@ -2275,7 +2287,14 @@ public class JavacParser implements Parser {
     }
 
     public JCBlock block() {
-        return block(token.pos, 0);
+    	try {
+    		pushGotoResolver();
+    		return block(token.pos, 0);
+    	}
+    	finally {
+    		popGotoResolver();
+    	}
+        
     }
 
     /** BlockStatements = { BlockStatement }
@@ -2343,7 +2362,7 @@ public class JavacParser implements Parser {
             return List.nil();
         case LBRACE: case IF: case FOR: case WHILE: case DO: case TRY:
         case SWITCH: case SYNCHRONIZED: case RETURN: case THROW: case BREAK:
-        case CONTINUE: case SEMI: case ELSE: case FINALLY: case CATCH:
+        case CONTINUE: case SEMI: case ELSE: case FINALLY: case CATCH: case GOTO:
             return List.of(parseStatement());
         case MONKEYS_AT:
         case FINAL: {
@@ -2388,7 +2407,7 @@ public class JavacParser implements Parser {
             if (token.kind == COLON && t.hasTag(IDENT)) {
                 nextToken();
                 JCStatement stat = parseStatement();
-                return List.<JCStatement>of(F.at(pos).Labelled(prevToken.name(), stat));
+                return List.<JCStatement>of(F.at(pos).Labelled(prevToken.name(), stat, getGotoResolver()));
             } else if ((lastmode & TYPE) != 0 && LAX_IDENTIFIER.accepts(token.kind)) {
                 pos = token.pos;
                 JCModifiers mods = F.at(Position.NOPOS).Modifiers(0);
@@ -2555,6 +2574,14 @@ public class JavacParser implements Parser {
             accept(SEMI);
             return t;
         }
+        case GOTO: {
+        	nextToken();
+            Name label = LAX_IDENTIFIER.accepts(token.kind) ? ident() : null;
+            JCGoto t =  to(F.at(pos).Goto(label, getGotoResolver()));
+            accept(SEMI);
+            return t;
+        	
+        }
         case SEMI:
             nextToken();
             return toP(F.at(pos).Skip());
@@ -2590,7 +2617,7 @@ public class JavacParser implements Parser {
             if (token.kind == COLON && expr.hasTag(IDENT)) {
                 nextToken();
                 JCStatement stat = parseStatement();
-                return F.at(pos).Labelled(prevToken.name(), stat);
+                return F.at(pos).Labelled(prevToken.name(), stat, getGotoResolver());
             } else {
                 // This Exec is an "ExpressionStatement"; it subsumes the terminating semicolon
                 JCExpressionStatement stat = to(F.at(pos).Exec(checkExprStat(expr)));

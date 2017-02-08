@@ -39,9 +39,11 @@ import com.sun.source.tree.MemberReferenceTree.ReferenceMode;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Scope.*;
 import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.parser.GotoResolver;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
+
 import static com.sun.tools.javac.tree.JCTree.Tag.*;
 
 /**
@@ -1052,9 +1054,12 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
     public static class JCLabeledStatement extends JCStatement implements LabeledStatementTree {
         public Name label;
         public JCStatement body;
-        protected JCLabeledStatement(Name label, JCStatement body) {
+        public GotoResolver handler;
+        protected JCLabeledStatement(Name label, JCStatement body, GotoResolver handler) {
             this.label = label;
             this.body = body;
+            this.handler = handler;
+            this.handler.recordTarget(this);
         }
         @Override
         public void accept(Visitor v) { v.visitLabelled(this); }
@@ -1375,8 +1380,11 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
     public static class JCGoto extends JCStatement implements GotoTree {
         public Name label;
         public JCLabeledStatement target;
-        protected JCGoto(Name label) {
+        public GotoResolver handler;
+        protected JCGoto(Name label, GotoResolver handler) {
             this.label = label;
+            this.handler = handler;
+            this.handler.recordGoto(this);
         }
         @Override
         public void accept(Visitor v) { v.visitGoto(this); }
@@ -1392,6 +1400,9 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
             return GOTO;
         }
         
+        public void findTarget() {
+        	this.target = (JCLabeledStatement) this.handler.findTarget(this);
+        }
     }
 
     /**
@@ -2495,7 +2506,7 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
                         List<JCExpressionStatement> step,
                         JCStatement body);
         JCEnhancedForLoop ForeachLoop(JCVariableDecl var, JCExpression expr, JCStatement body);
-        JCLabeledStatement Labelled(Name label, JCStatement body);
+        JCLabeledStatement Labelled(Name label, JCStatement body, GotoResolver resolver);
         JCSwitch Switch(JCExpression selector, List<JCCase> cases);
         JCCase Case(JCExpression pat, List<JCStatement> stats);
         JCSynchronized Synchronized(JCExpression lock, JCBlock body);

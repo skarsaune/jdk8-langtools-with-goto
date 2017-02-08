@@ -171,7 +171,7 @@ public class TreeCopier<P> implements TreeVisitor<JCTree,P> {
 
     public JCTree visitGoto(GotoTree node, P p) {
         JCGoto t = (JCGoto) node;
-        return M.at(t.pos).Goto(t.label);
+        return M.at(t.pos).Goto(t.label, t.handler);
     }
 
     public JCTree visitDoWhileLoop(DoWhileLoopTree node, P p) {
@@ -239,7 +239,7 @@ public class TreeCopier<P> implements TreeVisitor<JCTree,P> {
     public JCTree visitLabeledStatement(LabeledStatementTree node, P p) {
         JCLabeledStatement t = (JCLabeledStatement) node;
         JCStatement body = copy(t.body, p);
-        return M.at(t.pos).Labelled(t.label, body);
+        return M.at(t.pos).Labelled(t.label, body, t.handler);
     }
 
     public JCTree visitLiteral(LiteralTree node, P p) {

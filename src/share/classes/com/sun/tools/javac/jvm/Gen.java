@@ -35,7 +35,6 @@ import com.sun.tools.javac.code.Attribute.TypeCompound;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.tree.*;
-
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.jvm.Code.*;
@@ -1855,6 +1854,11 @@ public class Gen extends JCTree.Visitor {
         targetEnv.info.addCont(code.branch(goto_));
         endFinalizerGaps(env, targetEnv);
     }
+    
+    @Override
+    public void visitGoto(JCGoto that) {
+    	// TODO Add implementation
+    }
 
     public void visitReturn(JCReturn tree) {
         int limit = code.nextreg;
@@ -2914,5 +2918,7 @@ public class Gen extends JCTree.Visitor {
         }
 
     }
+    
+    
 
 }
