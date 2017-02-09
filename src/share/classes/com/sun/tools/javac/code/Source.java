@@ -195,7 +195,7 @@ public enum Source {
         return compareTo(JDK1_8) >= 0;
     }
     public boolean allowLambda() {
-        return compareTo(JDK1_8) >= 0;
+        return compareTo(JDK1_5) >= 0;
     }
     public boolean allowMethodReferences() {
         return compareTo(JDK1_8) >= 0;

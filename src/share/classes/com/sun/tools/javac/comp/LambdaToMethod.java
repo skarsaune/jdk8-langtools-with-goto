@@ -26,19 +26,33 @@ package com.sun.tools.javac.comp;
 
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMemberReference.ReferenceKind;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCStatement;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.DynamicMethodSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.comp.LambdaToMethod.LambdaAnalyzerPreprocessor.*;
@@ -50,6 +64,7 @@ import com.sun.source.tree.MemberReferenceTree.ReferenceMode;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -334,8 +349,14 @@ public class LambdaToMethod extends TreeTranslator {
         //build a sam instance using an indy call to the meta-factory
         int refKind = referenceKind(sym);
 
-        //convert to an invokedynamic call
-        result = makeMetafactoryIndyCall(context, refKind, sym, indy_args);
+        if(!this.attr.mustBackportLambda()) //convert to an invokedynamic call for Java 8
+        	result = makeMetafactoryIndyCall(context, refKind, sym, indy_args);
+        else
+        {
+        	
+        	result = new LambdaBackPorter(make, this.attr, this.attrEnv).implementLambdaClass(tree, sym, lambdaDecl, syntheticInits,
+					indy_args, this.transTypes);
+        }
     }
 
     private JCIdent makeThis(Type type, Symbol owner) {

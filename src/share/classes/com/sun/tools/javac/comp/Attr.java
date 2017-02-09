@@ -2406,6 +2406,14 @@ public class Attr extends JCTree.Visitor {
                 checkAccessibleTypes(that, localEnv, resultInfo.checkContext.inferenceContext(), lambdaType, currentTarget);
             }
             result = check(that, currentTarget, VAL, resultInfo);
+			if (mustBackportLambda()) {// set up inner class
+															// for older
+															// versions
+				
+				new LambdaBackPorter(make, this, this.env).initiateLambdaImplementation(that, currentTarget);
+
+			}
+            	
         } catch (Types.FunctionDescriptorLookupError ex) {
             JCDiagnostic cause = ex.getDiagnostic();
             resultInfo.checkContext.report(that, cause);
@@ -2418,7 +2426,11 @@ public class Attr extends JCTree.Visitor {
             }
         }
     }
-    //where
+    boolean mustBackportLambda() {
+    	return this.target.compareTo(Target.JDK1_8) < 0;
+	}
+
+		//where
         void preFlow(JCLambda tree) {
             new PostAttrAnalyzer() {
                 @Override
